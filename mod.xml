@@ -1,0 +1,6 @@
+<Mod
+	name="Spell sorter"
+	description="Handy little utility mod, that adds a button to your inventory to sort the spells in your spell inventory"
+	request_no_api_restrictions="0"
+> 
+</Mod>
