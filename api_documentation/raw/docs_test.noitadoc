@@ -1,0 +1,1 @@
+EntityLoad( filename:string, pos_x:number = 0, pos_y:number = 0 ) -> entity_id:int [Test documentation]
