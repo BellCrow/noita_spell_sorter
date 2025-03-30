@@ -92,20 +92,22 @@ def fix_type(type_text: str) -> str:
     return type_text
 
 
-def get_argument_node_documentation(node: Node) -> str:
-    if is_special_case_argument(node):
-        return f'---{node.text.decode("utf-8")}'
+def get_argument_node_documentation(function_argument_node: Node) -> str:
+    if is_special_case_argument(function_argument_node):
+        return f'---{function_argument_node.text.decode("utf-8")}'
 
-    ret = f"--- @param {get_child_text_by_type(node, 'identifier')}"
+    ret = f"--- @param {get_child_text_by_type(function_argument_node, 'identifier')}"
 
-    if has_child_by_type(node, "function_argument_type"):
-        argument_type = get_child_text_by_type(node, "function_argument_type")
+    if has_child_by_type(function_argument_node, "function_argument_type"):
+        argument_type = get_child_text_by_type(
+            function_argument_node, "function_argument_type"
+        )
         argument_type = fix_type(argument_type)
         ret += f" {argument_type}"
 
-    if has_child_by_type(node, "function_argument_default_value"):
+    if has_child_by_type(function_argument_node, "function_argument_default_value"):
         ret += " default value " + get_child_text_by_type(
-            node, "function_argument_default_value"
+            function_argument_node, "function_argument_default_value"
         )
 
     return ret
@@ -136,11 +138,20 @@ def build_function(node: Node) -> str:
     return f"function {function_name}({get_function_argument_string(node)})end"
 
 
-def create_return_documentation(node: Node):
-    # TODO: add return type documentation
-    # return_type = get_child_by_type(node,
-    pass
-
+def create_return_documentation(return_node: Node) -> str:
+    return_node_text = get_child_text_by_type(return_node, "return_type")
+    # if the return value has a name it will look like this: 
+    # <name>:<type>
+    # we have to parse this now 
+    if ':' in return_node_text:
+        return_type_regex = re.compile('(.*):(.*)')
+        match = return_type_regex.match(return_node_text)
+        assert match is not None
+        fixed_type = match.group(2)
+        return f"--- @return {fixed_type} {match.group(1)}" 
+    else:
+        fixed_type = fix_type(return_node_text)
+        return f"--- @return {fixed_type}" 
 
 def convertLuaDocumentationLine(input: str) -> str:
     parser = get_parser()
@@ -156,10 +167,9 @@ def convertLuaDocumentationLine(input: str) -> str:
             get_children_by_type(line_node, "function_argument")
         )
     )
+
     if has_child_by_type(line_node, "return_def"):
-        luadoc.append(
-            create_return_documentation(get_child_by_type(line_node, "return_def"))
-        )
+        luadoc.append(create_return_documentation(get_child_by_type(line_node, 'return_def')))
 
     function_documentation = "\n".join(luadoc)
 

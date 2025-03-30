@@ -1,4 +1,4 @@
-Eany seem to be the most fitting type, that luals undestands
+EntityLoad( filename:string, pos_x:number = 0, pos_y:number = 0 ) -> entity_id:int
 EntityLoadEndGameItem( filename:string, pos_x:number = 0, pos_y:number = 0 ) -> entity_id:int
 EntityLoadCameraBound( filename:string, pos_x:number = 0, pos_y:number = 0 )
 EntityLoadToEntity( filename:string, entity:int ) [Loads components from 'filename' to 'entity'. Does not load tags and other stuff.]
@@ -109,7 +109,7 @@ CellFactory_GetAllSands( include_statics:bool = true, include_particle_fx_materi
 CellFactory_GetAllGases( include_statics:bool = true, include_particle_fx_materials:bool = false ) -> {string}
 CellFactory_GetAllFires( include_statics:bool = true, include_particle_fx_materials:bool = false ) -> {string}
 CellFactory_GetAllSolids( include_statics:bool = true, include_particle_fx_materials:bool = false ) -> {string}
-CellFactory_GetTags( material_id:int ) -> {s_tring}
+CellFactory_GetTags( material_id:int ) -> {string}
 CellFactory_HasTag( material_id:int, tag:string ) -> {bool}
 GameGetCameraPos() -> x:number,y:number
 GameSetCameraPos( x:number, y:number )
