@@ -88,7 +88,8 @@ def fix_type(type_text: str) -> str:
     regex_match = just_table_regex.fullmatch(type_text)
     if regex_match:
         # I presume what is always meant by types like "{string}" is just an array
-        type_text = f"{regex_match.group(1)}[]"
+        fixed_type = fix_type(regex_match.group(1))
+        type_text = f"{fixed_type}[]"
     return type_text
 
 
@@ -140,18 +141,27 @@ def build_function(node: Node) -> str:
 
 def create_return_documentation(return_node: Node) -> str:
     return_node_text = get_child_text_by_type(return_node, "return_type")
-    # if the return value has a name it will look like this: 
+    # if the return value has a name it will look like this:
     # <name>:<type>
-    # we have to parse this now 
-    if ':' in return_node_text:
-        return_type_regex = re.compile('(.*):(.*)')
+    # we have to parse this now
+    if ":" in return_node_text:
+        return_type_regex = re.compile("(.*):(.*)")
         match = return_type_regex.match(return_node_text)
         assert match is not None
-        fixed_type = match.group(2)
-        return f"--- @return {fixed_type} {match.group(1)}" 
+        fixed_type = fix_type(match.group(2))
+        return f"--- @return {fixed_type} {match.group(1)}"
     else:
         fixed_type = fix_type(return_node_text)
-        return f"--- @return {fixed_type}" 
+        return f"--- @return {fixed_type}"
+
+
+def create_function_description(node: Node) -> str:
+    return (
+        '--- ' + get_child_text_by_type(node, "documentation")
+        .removeprefix("[")
+        .removesuffix("]")
+    )
+
 
 def convertLuaDocumentationLine(input: str) -> str:
     parser = get_parser()
@@ -169,19 +179,28 @@ def convertLuaDocumentationLine(input: str) -> str:
     )
 
     if has_child_by_type(line_node, "return_def"):
-        luadoc.append(create_return_documentation(get_child_by_type(line_node, 'return_def')))
+        luadoc.append(
+            create_return_documentation(get_child_by_type(line_node, "return_def"))
+        )
+
+    if has_child_by_type(line_node, "documentation"):
+        luadoc.append(create_function_description(line_node))
 
     function_documentation = "\n".join(luadoc)
 
     return function_documentation + "\n" + build_function(line_node)
 
 
-def convert_lua_documentation_file(input_file: str, output_file: str) -> str:
+def convert_lua_documentation_file(input_file: str, output_file: str):
     raw_documentation_lines = open(input_file).readlines()
     result = ""
     for line in raw_documentation_lines:
         result += convertLuaDocumentationLine(line) + os.linesep
-    _ = open(output_file, "w").write(result)
+    with  open(output_file, "w") as file :
+         _ = file.write('--- @meta')
+         # i assume that component ids are basically intergers
+         _ = file.write('--- @alias component_id integer')
+         _ = file.write(result)
     return result
 
 
