@@ -107,7 +107,7 @@ def get_argument_node_documentation(function_argument_node: Node) -> str:
         ret += f" {argument_type}"
 
     if has_child_by_type(function_argument_node, "function_argument_default_value"):
-        ret += " default value " + get_child_text_by_type(
+        ret += "? default value " + get_child_text_by_type(
             function_argument_node, "function_argument_default_value"
         )
 
@@ -136,7 +136,7 @@ def get_function_argument_string(node: Node) -> str:
 
 def build_function(node: Node) -> str:
     function_name = get_function_name(node)
-    return f"function {function_name}({get_function_argument_string(node)})end"
+    return f"function {function_name}({get_function_argument_string(node)})\nend"
 
 
 def create_return_documentation(return_node: Node) -> str:
@@ -188,19 +188,20 @@ def convertLuaDocumentationLine(input: str) -> str:
 
     function_documentation = "\n".join(luadoc)
 
-    return function_documentation + "\n" + build_function(line_node)
+    return function_documentation + "\n" + build_function(line_node) + 2 * "\n"
 
 
 def convert_lua_documentation_file(input_file: str, output_file: str):
     raw_documentation_lines = open(input_file).readlines()
     result = ""
     for line in raw_documentation_lines:
-        result += convertLuaDocumentationLine(line) + os.linesep
+        result += convertLuaDocumentationLine(line)
     with  open(output_file, "w") as file :
-         _ = file.write('--- @meta')
+         _ = file.write('--- @meta\n')
          # i assume that component ids are basically intergers
-         _ = file.write('--- @alias component_id integer')
+         _ = file.write('--- @alias component_id integer\n\n\n')
          _ = file.write(result)
+         
     return result
 
 

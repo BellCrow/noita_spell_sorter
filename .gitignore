@@ -38,3 +38,5 @@ luac.out
 *.i*86
 *.x86_64
 *.hex
+
+api_documentation/noita_lua_ls_documentation.lua

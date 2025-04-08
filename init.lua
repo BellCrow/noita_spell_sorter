@@ -33,25 +33,23 @@ function _Debug_GiveTestItems()
 	--EntityLoad( "data/entities/items/pickup/random_card.xml", x+10, y+10)
 	--GamePickUpInventoryItem(PLAYER_ENTITY, "data/entities/items/pickup/thunderstone.xml")
 end
+function OnWorldPreUpdate()
+	--- This is called every time the game is about to start updating the world
+	GuiStartFrame(GUI_HANDLE);
+	GuiLayoutBeginHorizontal(GUI_HANDLE, 100, 0, true, 0, 0);
+	if GuiButton(GUI_HANDLE, 0,100, 100, "Sort spells") then
+		GamePrint("Trying to sort..");
 
-function OnWorldPreUpdate() -- This is called every time the game is about to start updating the world
-	if GameIsInventoryOpen() then
-		local componentIds = EntityGetAllComponents(PLAYER_ENTITY)
-		for i, c in ipairs(componentIds) do
-			GamePrint("ID: " .. c .. " -> " .. ComponentGetTypeName(c))
-		end
-		-- inventoryComponentId = EntityGetComponent(PLAYER_ENTITY,"Inventory2Component")
-		-- if(inventoryComponentId == nil) then
-		--     GamePrint( "No component found on player entity")
-		-- else
-		--     ComponentGetValue2(inventoryComponentId, "")
-		-- end
+
 	end
+	GuiLayoutEnd(GUI_HANDLE);
 end
 
 function OnPlayerSpawned(player_entity) -- This runs when player entity has been created
 	-- GamePrint( "OnPlayerSpawned() - Player entity id: " .. tostring(player_entity) )
 	PLAYER_ENTITY = player_entity
-	_Debug_GiveTestItems()
-end
 
+	GUI_HANDLE = GuiCreate();
+		GamePrint("BUTTON CLICKED")
+	-- _Debug_GiveTestItems()
+end
