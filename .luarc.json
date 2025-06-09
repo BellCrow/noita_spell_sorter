@@ -1,0 +1,7 @@
+{
+  "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
+  "workspace.library": ["./api_documentation/noita_lua_ls_documentation.lua"],
+  "runtime.version": "Lua 5.3",
+  "hint.enable": false
+}
+
