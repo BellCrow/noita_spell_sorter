@@ -3,10 +3,12 @@ import re
 from tree_sitter import Language, Node, Parser, Tree
 
 
-PATH_TO_SO = "/home/peremptor/tree-sitter-parser/tree-sitter-noitadoc/noitadoc.so"
+PATH_TO_SO = "/home/josh/tree-sitter-parser/tree-sitter-noitadoc/noitadoc.so"
 
 
 def get_parser() -> Parser:
+    my_lang = Language.build_library('/home/josh/tree-sitter-parser/tree-sitter-noitadoc/noitadoc.so',
+                                     ['/home/josh/repos/personal/tree-sitter-noitadoc/'])
     lang: Language = Language(PATH_TO_SO, "noitadoc")
     parser: Parser = Parser()
     parser.set_language(lang)
@@ -39,7 +41,7 @@ def get_child_by_type(node: Node, type_name: str) -> Node:
     return children[0]
 
 
-def get_children_by_type(node: Node, type_name: str) -> list[Node]:
+def get_children_by_type(node: Node, type_name: str) -> 'list[Node]':
     ret: list[Node] = []
     sub_nodes = node.children
     for sub_node in sub_nodes:
@@ -114,7 +116,7 @@ def get_argument_node_documentation(function_argument_node: Node) -> str:
     return ret
 
 
-def create_function_documentation_string(funtion_argument_nodes: list[Node]):
+def create_function_documentation_string(funtion_argument_nodes: 'list[Node]'):
     texts: list[str] = []
     for node in funtion_argument_nodes:
         texts.append(get_argument_node_documentation(node))
@@ -156,11 +158,15 @@ def create_return_documentation(return_node: Node) -> str:
 
 
 def create_function_description(node: Node) -> str:
-    return (
-        '--- ' + get_child_text_by_type(node, "documentation")
-        .removeprefix("[")
-        .removesuffix("]")
-    )
+    cleaned_child_text = get_child_text_by_type(node, "documentation")
+    if cleaned_child_text[0] == "[":
+        cleaned_child_text = cleaned_child_text[1:]
+
+    if cleaned_child_text[len(cleaned_child_text) - 1] == "]":
+        cleaned_child_text = cleaned_child_text[:-1]
+ 
+    return '--- ' + cleaned_child_text
+        
 
 
 def convertLuaDocumentationLine(input: str) -> str:
@@ -207,6 +213,6 @@ def convert_lua_documentation_file(input_file: str, output_file: str):
 
 if __name__ == "__main__":
     test = convert_lua_documentation_file(
-        "/home/peremptor/repos/personal/noita_spell_sorter/api_documentation/raw/docs.noitadoc",
-        "/home/peremptor/repos/personal/noita_spell_sorter/api_documentation/noita_lua_ls_documentation.lua",
+        "/home/josh/repos/personal/noita_spell_sorter/api_documentation/raw/docs.noitadoc",
+        "/home/josh/repos/personal/noita_spell_sorter/api_documentation/noita_lua_ls_documentation.lua",
     )
